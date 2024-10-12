@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Query System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .result {
+            margin-top: 20px;
+        }
+
+        .result p {
+            font-size: 18px;
+            padding: 10px;
+            background-color: #e7f3ff;
+            border-left: 4px solid #007bff;
+        }
+
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>基于LLM的问答系统</h1>
+    <label for="question">请输入你的问题：</label>
+    <textarea id="question" placeholder="输入问题..."></textarea>
+    <button id="submitBtn">提交问题</button>
+
+    <div class="result" id="resultContainer"></div>
+</div>
+
+<script>
+    document.getElementById('submitBtn').addEventListener('click', async () => {
+        const question = document.getElementById('question').value;
+        const resultContainer = document.getElementById('resultContainer');
+        resultContainer.innerHTML = ''; // 清空之前的结果
+
+        if (!question) {
+            resultContainer.innerHTML = '<p class="error">请输入问题！</p>';
+            return;
+        }
+
+        // 发送POST请求到Flask后端
+        try {
+            const response = await fetch('http://10.176.64.187:5000/query', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ question })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                resultContainer.innerHTML = `
+                    <p><strong>问题：</strong> ${data.question}</p>
+                    <p><strong>回答：</strong> ${data.answer}</p>
+                    <p><strong>参考资料：</strong> ${data.reference}</p>
+                `;
+            } else {
+                resultContainer.innerHTML = '<p class="error">服务器返回错误！</p>';
+            }
+        } catch (error) {
+            resultContainer.innerHTML = `<p class="error">请求失败：${error.message}</p>`;
+        }
+    });
+</script>
+
+</body>
+</html>
