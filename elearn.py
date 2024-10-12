@@ -18,13 +18,13 @@ from llama_index.llms.huggingface import HuggingFaceLLM
 from transformers import AutoTokenizer
 
 tokenizer = AutoTokenizer.from_pretrained(
-    r'D:\models\Meta-Llama-3-8B-Instruct'
+    r'D:\models\Qwen2-7B-Instruct'
 )
 
-stopping_ids = [
-    tokenizer.eos_token_id,
-    tokenizer.convert_tokens_to_ids("<|eot_id|>"),
-]
+# stopping_ids = [
+#     tokenizer.eos_token_id,
+#     tokenizer.convert_tokens_to_ids("<|eot_id|>"),
+# ]
 
 # 使用llama-index创建本地大模型
 llm = HuggingFaceLLM(
@@ -33,14 +33,14 @@ llm = HuggingFaceLLM(
     generate_kwargs={
         "temperature": 0.1,
         "do_sample": True,
-        "pad_token_id": 128001,
-        "eos_token_id": [128001, 128009]
+        # "pad_token_id": 128001,
+        # "eos_token_id": [128001, 128009]
     },
-    tokenizer_name=r'D:\models\Meta-Llama-3-8B-Instruct',
-    model_name=r'D:\models\Meta-Llama-3-8B-Instruct',
+    tokenizer_name=r'D:\models\Qwen2-7B-Instruct',
+    model_name=r'D:\models\Qwen2-7B-Instruct',
     device_map="auto",
     model_kwargs={"torch_dtype": torch.float16},
-    stopping_ids=stopping_ids,
+    # stopping_ids=stopping_ids,
 )
 Settings.llm = llm
 
@@ -52,7 +52,7 @@ Settings.embed_model = HuggingFaceEmbedding(
 # 记录开始时间
 start_time = time.time()
 # 重建存储上下文
-storage_context = StorageContext.from_defaults(persist_dir="elearn_index")
+storage_context = StorageContext.from_defaults(persist_dir=r"D:\sxr\elearnPJ\data\elearn_index")
 
 # 加载索引
 index = load_index_from_storage(storage_context)
@@ -100,13 +100,13 @@ questions = [
 for query_idx in tqdm(range(len(questions))):
     torch.cuda.empty_cache()
     # 查询获得答案
-    response = query_engine.query("请完全用简体中文回答，不允许使用英语，回答要求说明清晰，并且附上页码" + str(questions[query_idx]['question'])) #str化了才能成功读入eos截断
+    response = query_engine.query("请完全用简体中文回答，不允许在任何情况下使用英语，回答要求说明清晰，不要换行，并且附上页码" + str(questions[query_idx]['question'])) #str化了才能成功读入eos截断
     print(str(response))
-    questions[query_idx]['answer'] = str(response)
+    questions[query_idx]['answer'] = str(response).splitlines()[0]
     # get sources
-    # response.source_nodes
+    # questions[query_idx]['reference'] = str(response.source_nodes)
     # # formatted sources
-    # response.get_formatted_sources()
+    questions[query_idx]['reference'] = response.get_formatted_sources()
 
-with open('./answers/submit_from_persistent_data.json', 'w', encoding='utf8') as up:
+with open(r'D:\sxr\elearnPJ\answers\submit_from_persistent_data.json', 'w', encoding='utf8') as up:
     json.dump(questions, up, ensure_ascii=False, indent=4)
