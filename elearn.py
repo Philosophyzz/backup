@@ -42,7 +42,13 @@ storage_context = StorageContext.from_defaults(persist_dir=r"D:\sxr\elearnPJ\dat
 # 加载索引
 index = load_index_from_storage(storage_context)
 
+# 构建查询引擎
+# 方式一：使用embedding
 retriever = index.as_retriever(retriever_mode='embedding')
+
+# 方式二：使用tree_summarize
+# query_engine = index.as_query_engine(response_mode="tree_summarize")
+
 
 # 构建查询引擎，集成系统提示词和相似性后处理器
 node_postprocessors = [

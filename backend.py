@@ -73,6 +73,8 @@ def query():
 
     # 格式化答案和引用
     answer = str(response)
+
+    # TODO：等KG出来后，reference指向原文内容，而不是现在这里的索引内容，然后等KG出来后，感觉可能不需要llama-index技术？直接搜索原文？
     reference = response.get_formatted_sources()
 
     return jsonify({
