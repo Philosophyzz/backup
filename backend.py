@@ -12,7 +12,7 @@ from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 # 初始化Flask应用
 app = Flask(__name__)
 
-# 使用llama-index创建本地大模型
+# 使用llama-index架构运行本地大模型的格式
 llm = HuggingFaceLLM(
     context_window=4096,
     max_new_tokens=512,
@@ -34,14 +34,19 @@ Settings.embed_model = HuggingFaceEmbedding(
 
 # 定义系统提示词 (system prompt)
 system_prompt = PromptTemplate(
-    template="你是一个精通物理生物的教育专家，请用简体中文回答用户提问，不允许在任何情况下使用英语，回答要求说明清晰，不要换行。"
+    template="你是一个精通物理生物的教育专家，请用简体中文回答用户提问，不允许在任何情况下使用英语，回答要求说明清晰，不要换行，且回答必须按照查询引擎索引到的内容回答，如索引内容不足以支持回答，请回答内容不足，无法回答。"
 )
 
 # 加载存储上下文和索引
 storage_context = StorageContext.from_defaults(persist_dir=r"D:\sxr\elearnPJ\data\elearn_index")
 index = load_index_from_storage(storage_context)
 
+# 构建查询引擎
+# 方式一：使用embedding
 retriever = index.as_retriever(retriever_mode='embedding')
+
+# 方式二：使用tree_summarize
+# query_engine = index.as_query_engine(response_mode="tree_summarize")
 
 # 构建查询引擎，集成系统提示词和相似性后处理器
 node_postprocessors = [
@@ -66,7 +71,7 @@ def query():
         return jsonify({"error": "Question is required"}), 400
 
     question = data['question']
-    torch.cuda.empty_cache()  # 清理GPU缓存以提高性能
+    torch.cuda.empty_cache()  
 
     # 调用llama-index进行查询
     response = query_engine.query(question)
