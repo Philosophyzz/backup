@@ -47,14 +47,19 @@ nodes = parser.get_nodes_from_documents(documents)
 # 对文档进行切分，将切分后的片段转化为embedding向量，构建向量索引
 # index = VectorStoreIndex.from_documents(documents, transformations=[SentenceSplitter(chunk_size=256)])
 
-# 由node构造索引
+# 由node构造索引，这是使用Vector向量化存储，除此以外还有
+# Tree Index：通过树形结构存储文档的摘要或语义信息，支持分层查询。
+# List Index：存储文档的顺序列表，按顺序检索或查询。
+# Vector Store Index：基于向量存储的索引结构，利用向量数据库或嵌入模型进行快速的语义搜索。（本例中使用）
+# 每种index化的方式有其对应的查询引擎，不可混用
+
 index = GPTVectorStoreIndex(nodes)
 # 将embedding向量和向量索引存储到文件中
 index.storage_context.persist(persist_dir=r'D:\sxr\elearnPJ\data\elearn_index')
 
 # 构建查询引擎
 # 方式一：使用embedding
-retriever = index.as_retriever(retriever_mode='embedding')
+# retriever = index.as_retriever(retriever_mode='embedding')
 
 # 方式二：使用tree_summarize
 # query_engine = index.as_query_engine(response_mode="tree_summarize")

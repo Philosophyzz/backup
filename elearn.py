@@ -33,7 +33,7 @@ Settings.embed_model = HuggingFaceEmbedding(
 
 # 定义系统提示词 (system prompt)，确保模型在查询时始终遵循这些规则
 system_prompt = PromptTemplate(
-    template="你是一个精通物理生物的教育专家，请用简体中文回答用户提问，不允许在任何情况下使用英语，回答要求说明清晰，不要换行，并且附上页码。"
+    template="你是一个精通物理生物的教育专家，请用简体中文回答用户提问，不允许在任何情况下使用英语，回答要求说明清晰，不要换行。"
 )
 
 # 重建存储上下文
