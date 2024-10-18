@@ -9,4 +9,5 @@ data = {
 headers = {'Content-Type': 'application/json'}
 
 response = requests.post(url, data=json.dumps(data), headers=headers)
-print(response.json())
+
+print(response.json()['final_answer'])
